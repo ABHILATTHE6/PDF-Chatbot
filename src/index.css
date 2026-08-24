@@ -1,0 +1,13 @@
+@import "tailwindcss";
+
+@layer base {
+  :root { --accent: #C5A059; --accent-light: #DFBE7B; --accent-dark: #A8833E; --bg: #0A0A0A; --surface: #141414; --surface-card: #171717; --border: rgba(255,255,255,0.08); }
+  body { background-color: var(--bg); color: #E0E0E0; font-family: 'Plus Jakarta Sans', sans-serif; }
+}
+.font-serif-luxury { font-family: 'Cormorant Garamond', Georgia, serif; }
+.letter-spacing-wide { letter-spacing: 0.25em; }
+.letter-spacing-v-wide { letter-spacing: 0.4em; }
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #0A0A0A; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: #C5A059; }
