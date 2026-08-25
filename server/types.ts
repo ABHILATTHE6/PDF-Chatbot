@@ -1,0 +1,42 @@
+export interface BoundingBox {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  pageWidth: number;
+  pageHeight: number;
+}
+
+export interface DocumentMetadata {
+  id: string;
+  filename: string;
+  fileSize: number;
+  pageCount: number;
+  status: 'uploading' | 'processing' | 'ready' | 'error';
+  statusMessage?: string;
+  progressPercent: number;
+  createdAt: string;
+  summary?: { overview: string; keyTopics: string[]; documentType: string };
+  suggestedQuestions?: string[];
+  sampleType?: string;
+}
+
+export interface DocumentChunk {
+  id: string;
+  documentId: string;
+  pageNumber: number;
+  content: string;
+  sectionTitle?: string;
+  startPosition: number;
+  endPosition: number;
+  boundingBox: BoundingBox;
+  embedding?: number[];
+  tokenCount?: number;
+}
+
+export interface RetrievalResult { chunk: DocumentChunk; score: number; semanticScore?: number; keywordScore?: number; }
+export interface SourceCitation { id: string; chunkId: string; pageNumber: number; excerpt: string; relevanceScore: number; boundingBox: BoundingBox; documentFilename: string; sectionTitle?: string; }
+export type ConfidenceLevel = 'strong' | 'partial' | 'unsupported';
+export interface ChatMessage { id: string; conversationId: string; role: 'user' | 'assistant'; content: string; grounded: boolean; confidenceLevel: ConfidenceLevel; retrievalScore: number; sources: SourceCitation[]; matchedKeywords?: string[]; createdAt: string; }
+export interface GroundingTestItem { id: string; testName: string; question: string; expectedGrounded: boolean; expectedPage?: number; description: string; }
+export interface GroundingTestResult { id: string; testName: string; question: string; expectedGrounded: boolean; actualGrounded: boolean; passed: boolean; confidenceLevel: ConfidenceLevel; answer: string; sources: SourceCitation[]; details: string; }
