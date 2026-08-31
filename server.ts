@@ -1,3 +1,6 @@
+import 'dotenv/config';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import express from 'express';
 import cors from 'cors';
 import multer from 'multer';
@@ -8,12 +11,15 @@ import { answerQuestion } from './server/geminiService';
 
 const app = express();
 const upload = multer({ limits: { fileSize: Number(process.env.MAX_UPLOAD_SIZE_MB || 25) * 1024 * 1024 } });
+const port = Number(process.env.PORT || 3000);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 app.use(cors());
 app.use(express.json());
 
 app.get('/api/health', (_req, res) => {
-  res.json({ status: 'ok', service: 'pdf-chatbot' });
+  res.json({ status: 'ok', service: 'pdf-chatbot', timestamp: new Date().toISOString() });
 });
 
 app.get('/api/documents/:id', (req, res) => {
@@ -54,5 +60,9 @@ app.post('/api/documents/:id/chat', async (req, res) => {
   }
 });
 
-const port = Number(process.env.PORT || 3000);
+// Serve the Vite build when running the production bundle.
+const distDir = path.resolve(__dirname, 'public');
+app.use(express.static(distDir));
+app.get('*', (_req, res) => res.sendFile(path.join(distDir, 'index.html')));
+
 app.listen(port, () => console.log(`PDF Chatbot server listening on port ${port}`));
