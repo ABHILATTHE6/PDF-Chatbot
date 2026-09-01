@@ -1,0 +1,17 @@
+node_modules
+npm-debug.log*
+.env
+.env.*
+!.env.example
+git
+gitignore
+.github
+public
+ dist
+uploads
+data
+logs
+coverage
+*.pdf
+*.zip
+*.tar.gz
