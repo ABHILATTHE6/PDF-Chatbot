@@ -1,8 +1,21 @@
 {
   "name": "pdf-chatbot",
-  "private": true,
   "version": "1.0.0",
+  "private": false,
+  "description": "AI-powered PDF document question answering with grounded retrieval and Gemini.",
+  "keywords": ["pdf", "chatbot", "rag", "generative-ai", "gemini", "document-qa"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ABHILATTHE6/PDF-Chatbot.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ABHILATTHE6/PDF-Chatbot/issues"
+  },
+  "homepage": "https://github.com/ABHILATTHE6/PDF-Chatbot",
   "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "dev": "tsx server.ts",
     "build": "vite build && esbuild server.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=dist/server.cjs",
@@ -13,6 +26,7 @@
     "@google/genai": "^2.4.0",
     "@tailwindcss/vite": "^4.1.14",
     "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
     "express": "^4.21.2",
     "jspdf": "^4.2.1",
     "lucide-react": "^0.546.0",
