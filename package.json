@@ -4,24 +4,12 @@
   "private": false,
   "description": "AI-powered PDF document question answering with grounded retrieval and Gemini.",
   "keywords": ["pdf", "chatbot", "rag", "generative-ai", "gemini", "document-qa"],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/ABHILATTHE6/PDF-Chatbot.git"
-  },
-  "bugs": {
-    "url": "https://github.com/ABHILATTHE6/PDF-Chatbot/issues"
-  },
+  "repository": { "type": "git", "url": "https://github.com/ABHILATTHE6/PDF-Chatbot.git" },
+  "bugs": { "url": "https://github.com/ABHILATTHE6/PDF-Chatbot/issues" },
   "homepage": "https://github.com/ABHILATTHE6/PDF-Chatbot",
   "type": "module",
-  "engines": {
-    "node": ">=20"
-  },
-  "scripts": {
-    "dev": "tsx server.ts",
-    "build": "vite build && esbuild server.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=dist/server.cjs",
-    "start": "node dist/server.cjs",
-    "lint": "tsc --noEmit"
-  },
+  "engines": { "node": ">=20" },
+  "scripts": { "dev": "tsx server.ts", "build": "vite build && esbuild server.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=dist/server.cjs", "start": "node dist/server.cjs", "lint": "tsc --noEmit" },
   "dependencies": {
     "@google/genai": "^2.4.0",
     "@tailwindcss/vite": "^4.1.14",
@@ -31,7 +19,7 @@
     "jspdf": "^4.2.1",
     "lucide-react": "^0.546.0",
     "motion": "^12.23.24",
-    "multer": "^1.4.5-lts.1",
+    "multer": "^2.0.2",
     "pdf-lib": "^1.17.1",
     "pdfjs-dist": "^4.10.38",
     "react": "^19.0.1",
