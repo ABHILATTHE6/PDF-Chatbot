@@ -161,7 +161,7 @@ The repository also provides a grounding test endpoint for supported and unsuppo
 
 ## CI
 
-GitHub Actions runs on pushes to `main` and pull requests. It installs dependencies, typechecks the project, and runs the production build. citehttps://docs.github.com/en/actions
+GitHub Actions runs on pushes to `main` and pull requests. It installs dependencies, typechecks the project, and runs the production build.
 
 ## Docker
 
