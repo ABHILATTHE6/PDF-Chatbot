@@ -8,23 +8,23 @@
 
 ## Overview
 
-PDF Chatbot lets a user upload a text-based PDF and ask questions about its contents. The backend extracts and chunks the document, creates embeddings, retrieves relevant passages, and generates an answer from the retrieved context. Responses include grounding information and source excerpts where available.
+PDF Chatbot lets a user upload a text-based PDF and ask questions about its contents. The backend extracts and chunks the document, generates embeddings, retrieves relevant passages, and produces a grounded answer. Responses can include confidence information and source/page evidence.
 
-## Core features
+## Features
 
-- PDF upload with size and type validation
-- PDF text extraction and chunking with page metadata
+- PDF upload with type and size validation
+- PDF text extraction, page metadata, chunking, and source bounding boxes
 - Gemini-powered embeddings and semantic retrieval
-- Document-grounded answers with confidence scoring
-- Refusal path for unsupported questions
+- Grounded answers with confidence scoring
+- Explicit refusal for unsupported questions
 - Source/page evidence in chat responses
-- PDF file and chunk APIs for the document viewer
+- PDF viewer and indexed chunk endpoints
 - Conversation history and document deletion
 - Built-in RAG demonstration PDF
-- Grounding test endpoint for supported and unsupported questions
-- React + Tailwind-based chat workspace
+- Grounding benchmark endpoint
+- React + Tailwind chat interface
 - GitHub Actions typecheck/build validation
-- Docker production image configuration
+- Production Docker image
 
 ## Architecture
 
@@ -35,23 +35,17 @@ Browser
   │                             ▼
   │                       Express API
   │                             │
-  │                 ┌───────────┴───────────┐
-  │                 ▼                       ▼
-  │          PDF extraction            Document storage
-  │                 │
-  │                 ▼
-  │              Chunks
-  │                 │
-  │                 ▼
-  │             Embeddings
-  │                 │
-  │                 ▼
-  │            Top-K retrieval
-  │                 │
-  │                 ▼
-  │            Gemini answer
-  │                 │
-  └──── answer + sources ◀────────┘
+  │                   PDF extraction
+  │                             │
+  │                           Chunks
+  │                             │
+  │                         Embeddings
+  │                             │
+  │                       Top-K retrieval
+  │                             │
+  │                       Gemini answer
+  │                             │
+  └──── answer + sources ◀──────┘
 ```
 
 ## Project structure
@@ -72,15 +66,17 @@ PDF-Chatbot/
 │   └── types.ts
 ├── src/
 │   ├── components/
+│   ├── lib/
 │   ├── api.ts
 │   ├── App.tsx
 │   └── main.tsx
+├── .dockerignore
 ├── .env.example
 ├── .gitignore
-├── .dockerignore
 ├── Dockerfile
 ├── CONTRIBUTING.md
 ├── LICENSE
+├── index.html
 ├── package.json
 ├── server.ts
 └── vite.config.ts
@@ -91,7 +87,7 @@ PDF-Chatbot/
 ### Requirements
 
 - Node.js 20+
-- A Gemini API key for embeddings and answer generation
+- Gemini API key
 
 ### Install
 
@@ -101,7 +97,7 @@ cd PDF-Chatbot
 npm install
 ```
 
-Create a local `.env` from `.env.example` and set `GEMINI_API_KEY`.
+Copy `.env.example` to `.env` and set `GEMINI_API_KEY`.
 
 ### Development
 
@@ -109,16 +105,16 @@ Create a local `.env` from `.env.example` and set `GEMINI_API_KEY`.
 npm run dev
 ```
 
-The Express server starts in development mode with Vite middleware.
+Open the URL shown by the server, normally `http://localhost:3000`.
 
-### Production build
+### Production
 
 ```bash
 npm run build
 npm start
 ```
 
-The build creates the Vite frontend in `public/` and the bundled Node server in `dist/server.cjs`.
+The Vite frontend and bundled Express server are written to `dist/`.
 
 ## API
 
@@ -128,21 +124,19 @@ The build creates the Vite frontend in `public/` and the bundled Node server in 
 | GET | `/api/documents` | List documents |
 | POST | `/api/documents/upload` | Upload and process a PDF |
 | GET | `/api/documents/:id` | Document metadata |
-| GET | `/api/documents/:id/file` | Serve original PDF |
+| GET | `/api/documents/:id/file` | Serve the original PDF |
 | GET | `/api/documents/:id/chunks` | Retrieve indexed chunks |
 | DELETE | `/api/documents/:id` | Delete a document |
 | POST | `/api/chat` | Ask a grounded question |
 | GET | `/api/chat/history/:documentId` | Conversation history |
 | DELETE | `/api/chat/history/:documentId` | Clear conversation |
-| GET | `/api/sample-docs/list` | List demo documents |
-| POST | `/api/documents/sample/:type` | Create a demo PDF |
+| GET | `/api/sample-docs/list` | List built-in demo documents |
+| POST | `/api/documents/sample/:type` | Generate a demo PDF |
 | POST | `/api/test/grounding-suite/:documentId` | Run grounding checks |
 
-See [`docs/API.md`](docs/API.md) for request and response details.
+See [`docs/API.md`](docs/API.md) for details.
 
 ## Configuration
-
-The main environment variables are:
 
 ```text
 GEMINI_API_KEY=
@@ -155,50 +149,49 @@ CONFIDENCE_THRESHOLD=0.35
 NODE_ENV=development
 ```
 
-Never commit `.env`, API keys, uploaded documents, or other secrets.
+Never commit API keys, `.env`, uploaded documents, or generated build artifacts.
 
 ## Grounding behavior
 
-The application is designed to answer from retrieved PDF context rather than silently substituting unrelated external knowledge. When retrieval does not provide enough evidence, the assistant uses the explicit fallback:
+The chatbot is designed to answer from retrieved PDF context. When there is not enough supporting evidence, it returns:
 
 > I couldn't find this information in the uploaded PDF.
 
-The repository also exposes a grounding test endpoint to exercise supported and unsupported questions against the demo document.
+The repository also provides a grounding test endpoint for supported and unsupported questions.
 
-## CI/CD
+## CI
 
-GitHub Actions runs on pushes to `main` and pull requests. The current workflow installs dependencies, runs TypeScript typechecking, and performs the production build.
+GitHub Actions runs on pushes to `main` and pull requests. It installs dependencies, typechecks the project, and runs the production build. citehttps://docs.github.com/en/actions
 
 ## Docker
-
-Build the production image:
 
 ```bash
 docker build -t pdf-chatbot .
 docker run --rm -p 3000:3000 --env-file .env pdf-chatbot
 ```
 
-## Limitations
+## Known limitations
 
-- Current storage is in-memory; uploaded documents disappear when the server restarts.
-- The current ingestion pipeline is intended for text-based PDFs and does not perform OCR for scanned documents.
-- Embedding generation requires a configured Gemini-compatible API key.
-- The vector index is currently application-memory based rather than a persistent vector database.
+- Document storage is in-memory; documents disappear after a server restart.
+- Scanned PDFs requiring OCR are not processed.
+- Embeddings and Gemini answers require a configured API key.
+- The retrieval index is memory-based rather than a persistent vector database.
 
 ## Roadmap
 
-- [x] PDF ingestion pipeline
-- [x] Semantic retrieval foundation
+- [x] PDF ingestion
+- [x] Embeddings and retrieval
 - [x] Grounded Gemini answers
-- [x] Source evidence and chat history APIs
-- [x] Demo document and grounding test workflow
+- [x] Source evidence
+- [x] Chat history
+- [x] Demo document and grounding tests
 - [x] CI validation
 - [x] Docker packaging
-- [ ] Persistent database/vector store
-- [ ] OCR support for scanned PDFs
+- [ ] Persistent document/vector storage
+- [ ] OCR for scanned PDFs
 - [ ] Streaming responses
 - [ ] Multi-document workspaces
-- [ ] Automated integration and E2E tests
+- [ ] Automated integration/E2E tests
 - [ ] Production deployment guide
 
 ## Contributing
