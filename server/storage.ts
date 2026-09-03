@@ -37,7 +37,7 @@ class Storage {
 
 export const storage = new Storage();
 
-export const createDocument = (filename: string, fileSize: number): DocumentMetadata => {
+export const createDocument = (filename: string, fileSize: number, pdfBuffer: Buffer = Buffer.alloc(0)): DocumentMetadata => {
   const metadata: DocumentMetadata = {
     id: `doc-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
     filename,
@@ -47,6 +47,7 @@ export const createDocument = (filename: string, fileSize: number): DocumentMeta
     progressPercent: 0,
     createdAt: new Date().toISOString(),
   };
+  storage.saveDocument(metadata, pdfBuffer, [], '');
   return metadata;
 };
 
