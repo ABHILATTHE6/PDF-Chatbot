@@ -1,162 +1,213 @@
 # PDF Chatbot
 
-> An AI-powered document question-answering application designed to let users upload PDF files and interact with their content using natural-language questions.
+> AI-powered, document-grounded question answering for PDF files using React, Express, PDF.js, embeddings, and Gemini.
 
-[![Repository](https://img.shields.io/badge/GitHub-PDF--Chatbot-181717?logo=github)](https://github.com/ABHILATTHE6/PDF-Chatbot)
-[![Status](https://img.shields.io/badge/status-in%20development-orange)](https://github.com/ABHILATTHE6/PDF-Chatbot)
+[![CI](https://github.com/ABHILATTHE6/PDF-Chatbot/actions/workflows/ci.yml/badge.svg)](https://github.com/ABHILATTHE6/PDF-Chatbot/actions/workflows/ci.yml)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Stack](https://img.shields.io/badge/stack-React%20%7C%20Express%20%7C%20Gemini-2ea44f.svg)](https://github.com/ABHILATTHE6/PDF-Chatbot)
 
 ## Overview
 
-**PDF Chatbot** is a Retrieval-Augmented Generation (RAG) project concept for making information inside PDF documents easier to search and understand. Instead of manually scanning a long document, a user can ask a question in natural language and receive an answer grounded in the uploaded document.
+PDF Chatbot lets a user upload a text-based PDF and ask questions about its contents. The backend extracts and chunks the document, creates embeddings, retrieves relevant passages, and generates an answer from the retrieved context. Responses include grounding information and source excerpts where available.
 
-The repository is currently being structured as a professional foundation for the application. The initial repository contained only a minimal README, so this update establishes the project's documentation, contribution guidelines, architecture notes, and license before the application implementation is added.
+## Core features
 
-## Why this project?
+- PDF upload with size and type validation
+- PDF text extraction and chunking with page metadata
+- Gemini-powered embeddings and semantic retrieval
+- Document-grounded answers with confidence scoring
+- Refusal path for unsupported questions
+- Source/page evidence in chat responses
+- PDF file and chunk APIs for the document viewer
+- Conversation history and document deletion
+- Built-in RAG demonstration PDF
+- Grounding test endpoint for supported and unsupported questions
+- React + Tailwind-based chat workspace
+- GitHub Actions typecheck/build validation
+- Docker production image configuration
 
-Long PDFs can contain hundreds of pages, making traditional keyword search inefficient for many questions. A document-aware chatbot provides a conversational interface while keeping the document as the primary source of context.
-
-### Target capabilities
-
-- Upload and process PDF documents
-- Extract and retrieve relevant document content
-- Ask questions using natural language
-- Generate context-aware answers using an LLM
-- Support document-grounded responses through RAG
-- Handle document metadata and processing status
-- Clearly communicate when the document does not contain enough information
-- Keep secrets and API credentials outside source control
-- Provide a foundation for future multi-document and production features
-
-> **Implementation note:** The capabilities above describe the intended application scope. They should not be interpreted as features already implemented in the current repository.
-
-## High-level architecture
+## Architecture
 
 ```text
-User
-  |
-  v
-Application UI
-  |
-  v
-PDF Processing -> Text Extraction -> Chunking
-                              |
-                              v
-                       Embeddings / Indexing
-                              |
-                              v
-                         Vector Store
-                              |
-User Question -> Retrieval -> Relevant Context
-                              |
-                              v
-                             LLM
-                              |
-                              v
-                       Grounded Answer
+Browser
+  │
+  ├── PDF upload ───────────────┐
+  │                             ▼
+  │                       Express API
+  │                             │
+  │                 ┌───────────┴───────────┐
+  │                 ▼                       ▼
+  │          PDF extraction            Document storage
+  │                 │
+  │                 ▼
+  │              Chunks
+  │                 │
+  │                 ▼
+  │             Embeddings
+  │                 │
+  │                 ▼
+  │            Top-K retrieval
+  │                 │
+  │                 ▼
+  │            Gemini answer
+  │                 │
+  └──── answer + sources ◀────────┘
 ```
-
-See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for the detailed design notes.
-
-## Recommended technology direction
-
-The final stack can be selected during implementation. A practical Python-based RAG stack could include:
-
-| Layer | Possible technology |
-|---|---|
-| Language | Python |
-| UI | Streamlit or a modern web frontend |
-| PDF extraction | PyMuPDF / pypdf |
-| Text processing | Custom Python pipeline or LangChain |
-| Embeddings | OpenAI, Hugging Face, or another embedding provider |
-| Vector database | FAISS, Chroma, Qdrant, or another vector store |
-| LLM | OpenAI or another compatible provider |
-| Testing | pytest |
-| Code quality | Ruff / Black / pre-commit |
-| Deployment | Docker + a cloud platform |
-
-These are recommendations, not locked dependencies. The implementation should choose the smallest reliable stack that satisfies the project's requirements.
-
-## Core RAG workflow
-
-1. **Upload** a PDF document.
-2. **Extract** readable text from the document.
-3. **Clean and chunk** the extracted text into retrieval-friendly sections.
-4. **Create embeddings** for the chunks.
-5. **Index** the embeddings in a vector store.
-6. **Retrieve** the most relevant chunks for each user question.
-7. **Build context** from the retrieved passages.
-8. **Generate** an answer using the LLM.
-9. **Return** the answer with source context or citations where possible.
 
 ## Project structure
 
-The repository is intentionally starting with documentation-first organization. As implementation is added, a structure similar to the following is recommended:
-
 ```text
 PDF-Chatbot/
-├── app/                 # Application / UI layer
-├── src/                 # Core PDF, retrieval, and LLM logic
-├── tests/               # Automated tests
-├── docs/                # Architecture and development documentation
-├── .env.example         # Environment variable template
+├── .github/workflows/ci.yml
+├── docs/
+│   ├── API.md
+│   ├── ARCHITECTURE.md
+│   ├── DEVELOPMENT.md
+│   └── PROJECT_STATUS.md
+├── server/
+│   ├── embeddingService.ts
+│   ├── geminiService.ts
+│   ├── pdfService.ts
+│   ├── storage.ts
+│   └── types.ts
+├── src/
+│   ├── components/
+│   ├── api.ts
+│   ├── App.tsx
+│   └── main.tsx
+├── .env.example
 ├── .gitignore
+├── .dockerignore
+├── Dockerfile
 ├── CONTRIBUTING.md
 ├── LICENSE
-├── README.md
-└── requirements.txt     # Or pyproject.toml for dependency management
+├── package.json
+├── server.ts
+└── vite.config.ts
 ```
 
-## Getting started
+## Local setup
 
-The application implementation is not yet present in this repository, so there is currently no executable setup command to run. Once implementation is added, this section should be updated with the exact dependency installation and application start commands.
+### Requirements
+
+- Node.js 20+
+- A Gemini API key for embeddings and answer generation
+
+### Install
 
 ```bash
 git clone https://github.com/ABHILATTHE6/PDF-Chatbot.git
 cd PDF-Chatbot
-python -m venv .venv
+npm install
 ```
 
-Do not commit API keys, tokens, passwords, or local environment files. Use environment variables locally and provide only a sanitized `.env.example` template in the repository.
+Create a local `.env` from `.env.example` and set `GEMINI_API_KEY`.
 
-## Quality goals
+### Development
 
-This project is intended to evolve from a learning project into a portfolio-quality AI application. The implementation should prioritize:
+```bash
+npm run dev
+```
 
-- Clear separation of UI, business logic, retrieval, and model layers
-- Reproducible local setup
-- Environment-based configuration
-- Automated tests for core functionality
-- Input validation and useful error messages
-- Secure handling of credentials
-- Document-grounded responses rather than unsupported guesses
-- Maintainable code and meaningful commit history
-- Clear documentation for future contributors
+The Express server starts in development mode with Vite middleware.
+
+### Production build
+
+```bash
+npm run build
+npm start
+```
+
+The build creates the Vite frontend in `public/` and the bundled Node server in `dist/server.cjs`.
+
+## API
+
+| Method | Endpoint | Purpose |
+|---|---|---|
+| GET | `/api/health` | Service health |
+| GET | `/api/documents` | List documents |
+| POST | `/api/documents/upload` | Upload and process a PDF |
+| GET | `/api/documents/:id` | Document metadata |
+| GET | `/api/documents/:id/file` | Serve original PDF |
+| GET | `/api/documents/:id/chunks` | Retrieve indexed chunks |
+| DELETE | `/api/documents/:id` | Delete a document |
+| POST | `/api/chat` | Ask a grounded question |
+| GET | `/api/chat/history/:documentId` | Conversation history |
+| DELETE | `/api/chat/history/:documentId` | Clear conversation |
+| GET | `/api/sample-docs/list` | List demo documents |
+| POST | `/api/documents/sample/:type` | Create a demo PDF |
+| POST | `/api/test/grounding-suite/:documentId` | Run grounding checks |
+
+See [`docs/API.md`](docs/API.md) for request and response details.
+
+## Configuration
+
+The main environment variables are:
+
+```text
+GEMINI_API_KEY=
+LLM_MODEL=gemini-2.5-flash
+EMBEDDING_MODEL=text-embedding-004
+PORT=3000
+MAX_UPLOAD_SIZE_MB=25
+TOP_K_RESULTS=5
+CONFIDENCE_THRESHOLD=0.35
+NODE_ENV=development
+```
+
+Never commit `.env`, API keys, uploaded documents, or other secrets.
+
+## Grounding behavior
+
+The application is designed to answer from retrieved PDF context rather than silently substituting unrelated external knowledge. When retrieval does not provide enough evidence, the assistant uses the explicit fallback:
+
+> I couldn't find this information in the uploaded PDF.
+
+The repository also exposes a grounding test endpoint to exercise supported and unsupported questions against the demo document.
+
+## CI/CD
+
+GitHub Actions runs on pushes to `main` and pull requests. The current workflow installs dependencies, runs TypeScript typechecking, and performs the production build.
+
+## Docker
+
+Build the production image:
+
+```bash
+docker build -t pdf-chatbot .
+docker run --rm -p 3000:3000 --env-file .env pdf-chatbot
+```
+
+## Limitations
+
+- Current storage is in-memory; uploaded documents disappear when the server restarts.
+- The current ingestion pipeline is intended for text-based PDFs and does not perform OCR for scanned documents.
+- Embedding generation requires a configured Gemini-compatible API key.
+- The vector index is currently application-memory based rather than a persistent vector database.
 
 ## Roadmap
 
-- [ ] Define application requirements and user flows
-- [ ] Implement PDF upload and validation
-- [ ] Implement text extraction and chunking
-- [ ] Add embedding generation
-- [ ] Add vector-store indexing and retrieval
-- [ ] Integrate an LLM response layer
-- [ ] Add source/citation display
-- [ ] Build a polished chat interface
-- [ ] Add automated tests
-- [ ] Add linting and formatting checks
-- [ ] Add CI with GitHub Actions
-- [ ] Add Docker support
-- [ ] Add deployment documentation
-- [ ] Evaluate answer quality and retrieval accuracy
-- [ ] Add multi-document conversation support
+- [x] PDF ingestion pipeline
+- [x] Semantic retrieval foundation
+- [x] Grounded Gemini answers
+- [x] Source evidence and chat history APIs
+- [x] Demo document and grounding test workflow
+- [x] CI validation
+- [x] Docker packaging
+- [ ] Persistent database/vector store
+- [ ] OCR support for scanned PDFs
+- [ ] Streaming responses
+- [ ] Multi-document workspaces
+- [ ] Automated integration and E2E tests
+- [ ] Production deployment guide
 
 ## Contributing
 
-Contributions are welcome as the project develops. Please read [`CONTRIBUTING.md`](CONTRIBUTING.md) before opening a pull request.
+See [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 ## License
 
-This project is distributed under the MIT License. See [`LICENSE`](LICENSE) for details.
+MIT License. See [`LICENSE`](LICENSE).
 
 ## Author
 
